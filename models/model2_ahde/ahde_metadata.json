@@ -1,0 +1,36 @@
+{
+  "model_name": "AHDE Multi-Output Routing Classifier",
+  "features": [
+    "intent_id",
+    "query_len",
+    "complexity",
+    "twin_conf",
+    "mem_count",
+    "has_budget"
+  ],
+  "target_agents": [
+    "Search",
+    "Memory",
+    "Twin",
+    "MARE_Rec",
+    "Review",
+    "Price",
+    "Budget",
+    "Twin_Evolve",
+    "Explain",
+    "Cart",
+    "Notification"
+  ],
+  "intent_map": {
+    "0": "budget",
+    "1": "cart",
+    "2": "comparison",
+    "3": "general",
+    "4": "greeting",
+    "5": "price_tracking",
+    "6": "recommendation",
+    "7": "search"
+  },
+  "exact_match_accuracy": 0.9911111111111112,
+  "n_samples": 3000
+}

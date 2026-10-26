@@ -1,0 +1,20 @@
+{
+  "model": "Qwen/Qwen2.5-3B-Instruct",
+  "method": "4-bit QLoRA / supervised fine-tuning",
+  "training_examples": 800,
+  "validation_examples": 200,
+  "epochs": 1,
+  "training_loss": 1.3924621295928956,
+  "validation_loss": 1.268664,
+  "training_runtime_seconds": 1417.9976,
+  "sequence_similarity_to_context": 0.10160427807486631,
+  "generated_answer_characters": 915,
+  "evaluation_status": "Prototype; qualitative evaluation only",
+  "limitations": [
+    "Targets were automatically generated from product listings",
+    "Generated response repeats promotional listing language",
+    "Recommendation reasoning is not validated",
+    "Price and user-preference reasoning are not validated",
+    "A single example and rough sequence similarity are insufficient to establish model quality"
+  ]
+}

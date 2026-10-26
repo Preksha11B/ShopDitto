@@ -1,0 +1,15 @@
+{
+  "model": "TF-IDF + Logistic Regression",
+  "validation_rows": 466,
+  "validation_unique_reviews": 297,
+  "accuracy": 0.6673819742489271,
+  "balanced_accuracy": 0.4572310405643739,
+  "macro_f1": 0.45700241654432694,
+  "weighted_f1": 0.6588585267872396,
+  "limitations": [
+    "Laptop-review benchmark; broader product categories are not validated",
+    "Conflict sentiment has very few training examples",
+    "Aspect terms must be supplied; this classifier does not extract them",
+    "Validation performance does not establish production readiness"
+  ]
+}

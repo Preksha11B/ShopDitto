@@ -1,0 +1,18 @@
+MODEL 5 - PRICE INTELLIGENCE EVALUATION
+=============================================
+
+Eligible series evaluated: 449
+Original mean MAE: £0.3034
+Original median MAE: £0.0000
+Mean MAE excluding flagged observations: £0.2987
+Flagged observations excluded: 9
+
+DECISION
+Keep the last-price baseline as an experimental benchmark only.
+Do not enable production forecasts, price-drop alerts, or BUY NOW/WAIT recommendations.
+
+LIMITATIONS
+- Historical UK supermarket data, not the intended electronics and beauty shopping catalog
+- Data covers January to April 2024 and does not support current-price claims
+- Last-price baseline is a benchmark, not a validated forecasting model
+- Retrospective anomaly filtering uses subsequent observations and is not an online cleaning method

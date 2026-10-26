@@ -1,0 +1,31 @@
+{
+  "selected_model": "TF-IDF content + popularity hybrid",
+  "content_weight": 0.5,
+  "bpr_weight": 0.0,
+  "popularity_weight": 0.5,
+  "tfidf_max_features": 20000,
+  "tfidf_ngram_range": [
+    1,
+    2
+  ],
+  "evaluation": "sampled candidate ranking",
+  "candidate_count_per_user": 100,
+  "final_test_users": 12378,
+  "metrics": {
+    "Hybrid": {
+      "NDCG@6": 0.10819421941024585,
+      "MRR": 0.3418619331282936,
+      "MAP@6": 0.3136115150535889
+    },
+    "TF-IDF only": {
+      "NDCG@6": 0.06775228212761006,
+      "MRR": 0.22774669825490695,
+      "MAP@6": 0.202097807938816
+    },
+    "Popularity": {
+      "NDCG@6": 0.08454265763565348,
+      "MRR": 0.26916788337127623,
+      "MAP@6": 0.23823315559864175
+    }
+  }
+}

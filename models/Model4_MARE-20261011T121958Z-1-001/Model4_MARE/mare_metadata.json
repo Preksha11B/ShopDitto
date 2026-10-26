@@ -1,0 +1,22 @@
+{
+  "model": "MARE LambdaMART",
+  "objective": "rank:ndcg",
+  "features": [
+    "title_overlap",
+    "bullet_overlap",
+    "description_overlap",
+    "query_length",
+    "title_length",
+    "bullet_available",
+    "description_available",
+    "brand_available"
+  ],
+  "relevance_mapping": {
+    "E": 3,
+    "S": 2,
+    "C": 1,
+    "I": 0
+  },
+  "training_data": "Amazon ESCI Shopping Queries",
+  "split": "official train/test"
+}

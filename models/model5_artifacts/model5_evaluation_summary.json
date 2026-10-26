@@ -1,0 +1,32 @@
+{
+  "model_name": "Model 5 - Price Intelligence",
+  "dataset": "UK retail supermarket price time series",
+  "dataset_period": {
+    "start": "2024-01-09",
+    "end": "2024-04-13"
+  },
+  "evaluation": {
+    "train_cutoff": "2024-03-30",
+    "test_end": "2024-04-13",
+    "eligible_series": 449,
+    "mean_mae_gbp_original": 0.30341,
+    "median_mae_gbp_original": 0.0,
+    "std_mae_gbp_original": 0.889289,
+    "mean_mae_gbp_sensitivity_check": 0.298682,
+    "median_mae_gbp_sensitivity_check": 0.0,
+    "flagged_test_observations_excluded": 9
+  },
+  "selected_baseline": "Last observed training price",
+  "comparison_results": {
+    "prophet": "Worse than the baseline on the evaluated 20-series sample",
+    "moving_average": "Worse than the baseline on the 449-series evaluation",
+    "direction_classifiers": "Not suitable for customer-facing alerts due to low precision"
+  },
+  "limitations": [
+    "Historical UK supermarket data, not the intended electronics and beauty shopping catalog",
+    "Data covers January to April 2024 and does not support current-price claims",
+    "Last-price baseline is a benchmark, not a validated forecasting model",
+    "Retrospective anomaly filtering uses subsequent observations and is not an online cleaning method"
+  ],
+  "production_status": "Experimental - not approved for production price predictions or BUY NOW/WAIT recommendations"
+}

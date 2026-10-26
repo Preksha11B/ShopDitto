@@ -1,0 +1,217 @@
+'use client'
+
+import * as React from 'react'
+import { useQuery } from '@tanstack/react-query'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Header } from '@/components/shell/header'
+import { Sidebar, BottomNav } from '@/components/shell/sidebar'
+import { PersonalizedOnboardingWizard } from '@/components/onboarding/personalized-onboarding-wizard'
+import { CompareModal } from '@/components/compare/compare-modal'
+import { CompareTray } from '@/components/compare/compare-tray'
+import { ProductDetailModal } from '@/components/product/product-detail-modal'
+import { ChatView } from '@/components/views/chat-view'
+import { DiscoverView } from '@/components/views/discover-view'
+import { WishlistView } from '@/components/views/wishlist-view'
+import { MemoryView } from '@/components/views/memory-view'
+import { DigitalTwinView } from '@/components/views/digital-twin-view'
+import { CoachView } from '@/components/views/coach-view'
+import { TimelineView } from '@/components/views/timeline-view'
+import { SalesView } from '@/components/views/sales-view'
+import { InsightsView } from '@/components/views/insights-view'
+import { SettingsView } from '@/components/views/settings-view'
+import { ProfileView } from '@/components/views/profile-view'
+import { useAppStore } from '@/lib/store'
+
+export default function DashboardPage() {
+  const booted = useAppStore((s) => s.booted)
+  const setBooted = useAppStore((s) => s.setBooted)
+  const bootError = useAppStore((s) => s.bootError)
+  const setBootError = useAppStore((s) => s.setBootError)
+  const user = useAppStore((s) => s.user)
+  const setUser = useAppStore((s) => s.setUser)
+  const activeView = useAppStore((s) => s.activeView)
+  const setChatMessages = useAppStore((s) => s.setChatMessages)
+  const setActiveChatSessionId = useAppStore((s) => s.setActiveChatSessionId)
+  const setChatSessions = useAppStore((s) => s.setChatSessions)
+  const setNotifications = useAppStore((s) => s.setNotifications)
+  const setUnreadCount = useAppStore((s) => s.setUnreadCount)
+  const initialSessionId = React.useRef<string | null>(null)
+
+  // Boot creates one fresh session per page load and never restores its messages.
+  const { refetch: bootRefetch } = useQuery({
+    queryKey: ['boot'],
+    queryFn: async () => {
+      const sessionId = initialSessionId.current || `chat_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
+      initialSessionId.current = sessionId
+      setActiveChatSessionId(sessionId)
+      setChatMessages([])
+      const [initRes, sessionsRes, notifRes] = await Promise.all([
+        fetch('/api/init'),
+        fetch('/api/chat/sessions').catch(() => null),
+        fetch('/api/notifications').catch(() => null),
+      ])
+      if (initRes.status === 401) {
+        window.location.replace('/login')
+        throw new Error('Authentication required')
+      }
+      if (!initRes.ok) throw new Error('Could not initialize your account.')
+      const initData = await initRes.json()
+      setUser(initData.user)
+
+      if (sessionsRes?.ok) {
+        const sessionData = await sessionsRes.json()
+        if (sessionData.sessions) {
+          setChatSessions(sessionData.sessions)
+        }
+      }
+      if (notifRes?.ok) {
+        const notif = await notifRes.json()
+        const items = (notif.notifications || []).map(
+          (n: Record<string, unknown>) => ({
+            id: String(n.id),
+            type: String(n.type ?? ''),
+            title: String(n.title ?? ''),
+            message: String(n.message ?? ''),
+            productId: n.productId ? String(n.productId) : undefined,
+            read: Boolean(n.read),
+            createdAt: String(n.createdAt ?? new Date().toISOString()),
+          }),
+        )
+        setNotifications(items)
+        setUnreadCount(items.filter((n: { read: boolean }) => !n.read).length)
+      }
+      setBooted(true)
+      setBootError(null)
+      return initData
+    },
+    enabled: !booted,
+    retry: 1,
+  })
+
+  React.useEffect(() => {
+    if (!booted) bootRefetch()
+  }, [booted, bootRefetch])
+
+  const showOnboarding = booted && user && !user.hasOnboarded
+
+  return (
+    <div className="shopditto-shell flex h-[100dvh] min-h-0 flex-col overflow-hidden bg-background/80">
+      <Header />
+
+      <div className="mb-14 flex min-h-0 flex-1 md:mb-0">
+        {!showOnboarding && <Sidebar />}
+
+        <main className="flex-1 min-w-0 min-h-0 flex flex-col">
+          {bootError ? (
+            <div className="flex-1 flex items-center justify-center p-6">
+              <div className="text-center max-w-md">
+                <div className="text-rose-500 font-semibold mb-2">
+                  Boot failed
+                </div>
+                <p className="text-sm text-muted-foreground">{bootError}</p>
+                <button
+                  onClick={() => bootRefetch()}
+                  className="mt-3 rounded-md bg-emerald-600 px-3 py-1.5 text-sm text-white"
+                >
+                  Retry
+                </button>
+              </div>
+            </div>
+          ) : !booted ? (
+            <div className="flex-1 flex items-center justify-center">
+              <div className="flex flex-col items-center gap-3">
+                <div className="grid h-12 w-12 place-items-center rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white animate-pulse">
+                  <SparklesIcon />
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  shopDitto is gathering intelligence…
+                </div>
+              </div>
+            </div>
+          ) : showOnboarding ? (
+            <div className="flex-1 overflow-y-auto scrollbar-thin p-4 md:p-8">
+              <PersonalizedOnboardingWizard />
+            </div>
+          ) : (
+            <div
+              className={`flex-1 min-h-0 p-4 md:p-6 ${
+                activeView === 'chat'
+                  ? 'overflow-hidden'
+                  : 'overflow-y-auto scrollbar-thin pb-20 md:pb-6'
+              }`}
+            >
+              <AnimatePresence mode="sync">
+                <motion.div
+                  key={activeView}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  transition={{ duration: 0.2 }}
+                  className={
+                    activeView === 'chat'
+                      ? 'h-full min-h-0'
+                      : 'min-h-[calc(100vh-12rem)]'
+                  }
+                >
+                  {activeView === 'chat' && <ChatView />}
+                  {activeView === 'discover' && <DiscoverView />}
+                  {activeView === 'wishlist' && <WishlistView />}
+                  {activeView === 'memory' && <MemoryView />}
+                  {activeView === 'twin' && <DigitalTwinView />}
+                  {activeView === 'coach' && <CoachView />}
+                  {activeView === 'timeline' && <TimelineView />}
+                  {activeView === 'sales' && <SalesView />}
+                  {activeView === 'insights' && <InsightsView />}
+                  {activeView === 'settings' && <SettingsView />}
+                  {activeView === 'profile' && <ProfileView />}
+                </motion.div>
+              </AnimatePresence>
+            </div>
+          )}
+        </main>
+      </div>
+
+      {!showOnboarding && <BottomNav />}
+
+      {!showOnboarding && <CompareTray />}
+      <CompareModal />
+      <ProductDetailModal />
+
+      <footer
+        className="mt-auto border-t border-border/60 bg-gradient-to-r from-emerald-500/5 via-transparent to-teal-500/5 px-4 py-2.5 flex items-center justify-center gap-2 text-[10px] text-muted-foreground"
+        style={{ paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 0.5rem)' }}
+      >
+        <span className="inline-flex items-center gap-1">
+          <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+          shopDitto
+        </span>
+        <span className="text-border">·</span>
+        <span className="hidden sm:inline">Cross-Platform Shopping Intelligence</span>
+        <span className="sm:hidden">Shopping Intelligence</span>
+        <span className="text-border">·</span>
+        <span className={`font-medium ${user?.hasOnboarded ? 'text-emerald-600 dark:text-emerald-400' : ''}`}>
+          {booted
+            ? (user?.hasOnboarded ? 'Personalization Active' : 'Onboarding')
+            : 'Booting…'}
+        </span>
+      </footer>
+    </div>
+  )
+}
+
+function SparklesIcon() {
+  return (
+    <svg
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z" />
+    </svg>
+  )
+}

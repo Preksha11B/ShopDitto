@@ -1,0 +1,32 @@
+{
+  "model_name": "MARE Hybrid Content-Popularity Ranker",
+  "version": "1.1",
+  "dataset": "Amazon All Beauty reviews and product metadata",
+  "test_users": 12378,
+  "candidates_per_user": 100,
+  "positive_items_per_user": 1,
+  "candidate_catalog_coverage": 1.0,
+  "weights": {
+    "content": 0.5,
+    "bpr": 0.0,
+    "popularity": 0.5
+  },
+  "evaluation_protocol": "Held-out positive ranking against 99 sampled unreviewed products; unreviewed products are not confirmed negatives.",
+  "metrics": {
+    "Content-only": {
+      "NDCG@6": 0.22390428443746926,
+      "MRR": 0.22775360549642346,
+      "MAP@6": 0.20210454031345937
+    },
+    "Popularity-only": {
+      "NDCG@6": 0.2792527354451759,
+      "MRR": 0.26923829929465976,
+      "MAP@6": 0.23826547099693005
+    },
+    "Hybrid": {
+      "NDCG@6": 0.34810681012928263,
+      "MRR": 0.33444403521691535,
+      "MAP@6": 0.30467361447729846
+    }
+  }
+}
